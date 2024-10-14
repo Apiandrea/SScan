@@ -1,5 +1,6 @@
 import subprocess
 import os
+import nmap_scans
 import re
 import sys
 from colorama import Fore
@@ -64,19 +65,18 @@ def __main__():
         CIDR = int(input(Fore.CYAN + "Insert the CIDR number: " + Fore.RESET))
 
     if CIDR == 0:
-        command = f"nmap -sn {IP}"
+        target = f"{IP}"
     else:
-        command = f"nmap -sn {IP}/{CIDR}"
+        target = f"{IP}/{CIDR}"
 
     space()
 
-    _scan_result_str = subprocess.run(["sudo", "bash", "-c", command], capture_output=True, text=True)
-    _filtered_result = _scan_result_str.stdout.split("\n")
+    _scan_result = nmap_scans.default_scan(target)
 
     _gold = []
     _IPs = []
 
-    for s in _filtered_result:
+    for s in _scan_result:
         if "MAC" in s:
             _gold.append(Fore.GREEN + s + "\n" + Fore.RESET)
         elif "Nmap scan report" in s:
@@ -96,6 +96,11 @@ def __main__():
 
     if CIDR > 0:
         IP = select_device(_IPs)
+
+    # TEST
+
+    _scan_result = nmap_scans.port_scan(IP)
+    print(_scan_result)
 
 if __name__ == "__main__":
     __main__()
