@@ -1,6 +1,6 @@
 import subprocess
 import os
-import nmap_scans
+from Nmap import Nmap
 import re
 import sys
 from colorama import Fore
@@ -30,25 +30,32 @@ def input_IP():
 
 def print_scan(scan_results):
     print(Fore.RED + "NMAP SCAN:" + Fore.RESET)
-    for device in scan_results:
-        print(device)
+    for el in scan_results:
+        print(el)
 
 
 def select_device(_IPs):
+    print(Fore.RED + "DEVICES:" + Fore.RESET)
+    for ip in _IPs:
+        print(ip)
 
-        print(Fore.RED + "DEVICES:" + Fore.RESET)
-        for ip in _IPs:
-            print(ip)
+    space()
 
-        space()
+    _device_nmb = -1
+    while _device_nmb < 0 or _device_nmb > len(_IPs)-1:
+        _device_nmb = int(input(Fore.CYAN + "Chose the device number [0-" + str(len(_IPs)-1) + "]: " + Fore.RESET))
+    
+    return _IPs[_device_nmb]
 
-        _device_nmb = -1
-        while _device_nmb < 0 or _device_nmb > len(_IPs)-1:
-            _device_nmb = int(input(Fore.CYAN + "Chose the device number [0-" + str(len(_IPs)-1) + "]: " + Fore.RESET))
-        
-        return _IPs[_device_nmb]
-
-
+def menu():
+    space()
+    print_logo()
+    
+    print("""
+    \t[0] > Search another device?
+    \t[1] > Scans?
+    \t[2] > DDos?
+          """)
 
 def __main__():
 
@@ -71,7 +78,7 @@ def __main__():
 
     space()
 
-    _scan_result = nmap_scans.default_scan(target)
+    _scan_result = Nmap.default_scan(target)
 
     _gold = []
     _IPs = []
@@ -97,10 +104,9 @@ def __main__():
     if CIDR > 0:
         IP = select_device(_IPs)
 
-    # TEST
+    scanner = Nmap(IP)
 
-    _scan_result = nmap_scans.port_scan(IP)
-    print(_scan_result)
+
 
 if __name__ == "__main__":
     __main__()
