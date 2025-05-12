@@ -1,6 +1,7 @@
 import subprocess
 import os
 from Nmap import Nmap
+from Hping3 import Hping3
 import re
 import sys
 from colorama import Fore
@@ -45,7 +46,7 @@ def select_device(_IPs):
     while _device_nmb < 0 or _device_nmb > len(_IPs)-1:
         _device_nmb = int(input(Fore.CYAN + "Chose the device number [0-" + str(len(_IPs)-1) + "]: " + Fore.RESET))
     
-    return _IPs[_device_nmb]
+    return _IPs[_device_nmb].split(" ")[1]
 
 def menu(IP):
     space()
@@ -76,6 +77,30 @@ def scan_menu(IP):
         res = int(input("Insert: "))
 
     return res
+
+def ddos_menu(IP):
+    protocol_map = {
+        1: "rawip",
+        2: "udp",
+        3: "syn",
+        4: "icmp"
+    }
+
+    space()
+
+    res = 0
+    while res < 1 or res > 4:
+        print(f"""
+            Target IP: {IP} 
+            \t[1] > RAWIP 
+            \t[2] > UDP 
+            \t[3] > SYN 
+            \t[4] > ICMP 
+            """)
+        res = int(input("Insert: "))
+
+    return protocol_map.get(res, "unk")
+
 
 
 def __main__():
@@ -128,6 +153,7 @@ def __main__():
                 IP = select_device(_IPs)
 
             scanner = Nmap(IP)
+            ddos = Hping3(IP)
 
         elif loop_feed == 1:
             scan_feed = scan_menu(IP)
@@ -143,7 +169,8 @@ def __main__():
                 print(scanner.port_scan(port_range))
 
         elif loop_feed == 2:
-            print("TODO")
+            ddos.attack(ddos_menu(IP), int(input("Select the payload bytes: ")))
+
        
         loop_feed = menu(IP)
 
